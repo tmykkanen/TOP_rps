@@ -1,38 +1,63 @@
+/* eslint-disable comma-dangle */
 /* eslint-disable no-console */
 /* eslint-disable no-alert */
 // initialize variables needed later
 let playerScore = 0;
 let computerScore = 0;
-let scoreMessage = '';
-let roundWinner = '';
+const container = document.getElementById('container');
+const results = document.getElementById('results');
 
+// Helper function for formatting results message
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 
+function displayRoundResults(message) {
+  console.log(message);
+  results.textContent = message;
+}
+
 function updateScoreMessage(winner, playerSelection, computerSelection) {
+  let scoreMessage;
+
+  if (winner === 'tie') {
+    scoreMessage = `No winner! ${capitalizeFirstLetter(
+      playerSelection
+    )} ties with ${computerSelection.toLowerCase()}.`;
+  }
   if (winner === 'player') {
     scoreMessage = `${capitalizeFirstLetter(
       winner
     )} wins! ${capitalizeFirstLetter(
       playerSelection
-    )} beats ${computerSelection.toLowerCase()}`;
-    return;
+    )} beats ${computerSelection.toLowerCase()}.`;
   }
   if (winner === 'computer') {
     scoreMessage = `${capitalizeFirstLetter(
       winner
     )} wins! ${capitalizeFirstLetter(
       computerSelection
-    )} beats ${playerSelection.toLowerCase()}`;
-    return;
+    )} beats ${playerSelection.toLowerCase()}.`;
   }
-  scoreMessage = `No winner! ${capitalizeFirstLetter(
-    playerSelection
-  )} ties with ${computerSelection.toLowerCase()}`;
+
+  if (playerScore < 5 && computerScore < 5) {
+    scoreMessage += ` Score is now ${playerScore}–${computerScore}.`;
+    return scoreMessage;
+  }
+
+  if (playerScore === computerScore) {
+    scoreMessage += ` Final result is a tie! ${playerScore}–${computerScore}`;
+  } else if (playerScore > computerScore) {
+    scoreMessage += ` Player wins the game! ${playerScore}–${computerScore}`;
+  } else if (playerScore < computerScore) {
+    scoreMessage += ` Computer wins the game! ${playerScore}–${computerScore}`;
+  }
+  return scoreMessage;
 }
 
 function playRound(playerSelection, computerSelection) {
+  let roundWinner;
+
   if (playerSelection === computerSelection) {
     roundWinner = 'tie';
   }
@@ -52,10 +77,11 @@ function playRound(playerSelection, computerSelection) {
     computerScore += 1;
     roundWinner = 'computer';
   }
-  updateScoreMessage(roundWinner, playerSelection, computerSelection);
+
+  const message = updateScoreMessage(roundWinner, playerSelection, computerSelection);
+  displayRoundResults(message);
 }
 
-// eslint-disable-next-line consistent-return
 function getComputerSelection() {
   const randomNumber = Math.floor(Math.random() * 3 + 1);
   switch (randomNumber) {
@@ -66,21 +92,14 @@ function getComputerSelection() {
     case 3:
       return 'SCISSORS';
     default:
-      // do nothing
+      return 'ERR';
   }
 }
 
-function playGame() {
-  for (let round = 1; round <= 5; round += 1) {
-    const playerSelection = prompt('Rock, Paper, or Scissors?').toUpperCase();
+container.addEventListener('click', (e) => {
+  const playerSelection = e.target.id;
+
+  if (playerSelection !== 'container') {
     playRound(playerSelection, getComputerSelection());
-    console.log(scoreMessage);
   }
-  if (playerScore === computerScore) {
-    console.log(`Final result is a tie! ${playerScore}–${computerScore}`);
-  } else if (playerScore > computerScore) {
-    console.log(`Player wins the game! ${playerScore}–${computerScore}`);
-  } else if (playerScore < computerScore) {
-    console.log(`Computer wins the game! ${playerScore}–${computerScore}`);
-  }
-}
+});
